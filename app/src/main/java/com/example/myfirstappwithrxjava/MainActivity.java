@@ -32,29 +32,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // emit an observable every time interval
-        // this is emitting a value each one second
-        Observable<Long> intervalObservable = Observable
-                .interval(1, TimeUnit.SECONDS)
+        // Using fromArray to transform each object of array in observable
+        Task[] list = new Task[5];
+        list[0] = (new Task("Take out the trash", true, 3));
+        list[1] = (new Task("Walk the dog", false, 2));
+        list[2] = (new Task("Make my bed", true, 1));
+        list[3] = (new Task("Unload the dishwasher", false, 0));
+        list[4] = (new Task("Make dinner", true, 5));
+
+        Observable<Task> taskObservable = Observable
+                .fromArray(list)
                 .subscribeOn(Schedulers.io())
-                .takeWhile(new Predicate<Long>() { // stop the proccess if more than 5 seconds passes
-                    @Override
-                    public boolean test(Long aLong) throws Throwable {
-                        Log.d(TAG, "test: " + aLong + ", thread" + Thread.currentThread().getName());
-                        return aLong <= 5;
-                    }
-                })
                 .observeOn(AndroidSchedulers.mainThread());
 
-        intervalObservable.subscribe(new Observer<Long>() {
+        taskObservable.subscribe(new Observer<Task>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@NonNull Long aLong) {
-                Log.d(TAG, "onNext: " + aLong);
+            public void onNext(@NonNull Task task) {
+                Log.d(TAG, "onNext: " + task.getDescription());
             }
 
             @Override
@@ -68,23 +67,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Log.d(TAG, "\n\n");
-
-        // emit a single observable after a given delay
-        Observable<Long> timeObservable = Observable
-                .timer(3, TimeUnit.SECONDS)
+        // Using fromIterable to transform each object of iterable object in observable
+        Observable<Task> iterableObservable = Observable
+                .fromIterable(DataSource.createTasksList())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
 
-        timeObservable.subscribe(new Observer<Long>() {
+        iterableObservable.subscribe(new Observer<Task>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@NonNull Long aLong) {
-                Log.d(TAG, "onNext: " + aLong);
+            public void onNext(@NonNull Task task) {
+                Log.d(TAG, "onNext: " + task.getDescription());
             }
 
             @Override
